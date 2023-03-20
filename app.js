@@ -4,6 +4,7 @@ app.use(express.urlencoded({extended: true}));
 app.use(express.json());
 require('dotenv').config();
 const mongoose = require('mongoose');
+const ObjectId = require('mongodb').ObjectId; 
 mongoose.set('strictQuery', true);
 
 const applicantSchema = new mongoose.Schema({
@@ -19,7 +20,7 @@ const jobSchema = new mongoose.Schema({
   roleDescription: {type: String},
   jobApplicants: [applicantSchema]
 });
-const Job = mongoose.model("Job", applicantSchema);
+const Job = mongoose.model("Job", jobSchema);
 
 connect().catch(err => console.log(err));
 
@@ -37,6 +38,38 @@ app.route("/")
 app.route("/applicants")
   .get(async function (req, res){
     res.send(await Applicant.find());
+  });
+
+app.route("/applicants/:job_id")
+  .get(async function (req, res){
+    var id = req.params.job_id;       
+    var o_id = new ObjectId(id);
+    console.log("applicants for role: " + o_id);
+    const result = await Job.findOne( { _id: o_id} );
+    const {jobApplicants} = result;
+    console.log(jobApplicants);
+    
+    // var myArr = [1];
+    // var returnArray = myArr.map((element) => {
+    //   return element + 1;
+    // })
+    // console.log(returnArray)
+
+    const applicants = await Applicant.find();
+    // console.log(applicants);
+
+    var appsOfJob = applicants.filter((element) => {
+      var aid = element._id
+      console.log(jobApplicants.indexOf({_id: aid}));
+    });
+
+    // jobApplicants.forEach(async function (element) { 
+    //   const app = await Applicant.findOne( { element } );
+    //   console.log(app)
+    //   applicantObjs.push(app);
+    //  });
+    // res.send(applicantObjs);
+    res.send("done");
   });
 
 app.route("/jobs")
