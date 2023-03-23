@@ -32,14 +32,18 @@ const applicationSchema = new mongoose.Schema({
   // 4 - 2nd Interview with task
   // 5 - 3rd Interview
   // 6 - 3rd Interview with task
-  // 7 - Offer
-  // 8 - No offer
+
+  //date application submitted
+  //appFlag - 0,1 - 0 = fail, 1 = hired
+  //failedReason - reason for appFlag = 0
+  //add application channel - linkdin,reed,monster,uni schemes 
 });
 const Application = mongoose.model("Application", applicationSchema);
 
 const roleSchema = new mongoose.Schema({
   role: {type: String},
   roleDescription: {type: String},
+  //date job posteed
   jobApplicants: [applicationSchema]
 });
 const Role = mongoose.model("Role", roleSchema);
@@ -53,7 +57,7 @@ async function connect() {
 
 app.route("/")
   .get(async function (req, res) {
-    console.log(req.body);
+    // console.log(req.body);
     res.send({message:'Hello World'});
   });
 
@@ -83,11 +87,11 @@ app.route("/roles")
 
 app.route("/init")
   .get(async function (req, res){
-    const rec = new Recruiter({
-      name: "Alexandra Buckley",
-      email: "ab@totaljobs.co.uk"
-    });
-    rec.save();
+    // const rec = new Recruiter({
+    //   name: "Alexandra Buckley",
+    //   email: "ab@totaljobs.co.uk"
+    // });
+    // rec.save();
 
     // const role = await Role.findOne({_id: "64198008c274e47ba4464bad"});
     // const can1 = await Candidate.findOne({_id: "6419812c475a0215cba08b16"});
