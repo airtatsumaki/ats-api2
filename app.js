@@ -85,6 +85,21 @@ app.route("/applicants/:job_id")
 app.route("/roles")
   .get(async function (req, res){
     res.send(await Role.find());
+  })
+  .post(async function (req, res){
+    // console.log(req.body);
+    try{
+      const t = req.body.title;
+      const desc = req.body.description;
+      const newRole = new Role({
+        role: t,
+        roleDescription: desc
+      });
+      newRole.save();
+      res.send(newRole);
+    } catch (error){
+      console.log(error);
+    }
   });
 
 app.route("/init")
