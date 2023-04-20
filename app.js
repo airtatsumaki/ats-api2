@@ -1,13 +1,46 @@
 const express = require('express');
 const cors = require('cors');
 const app = express();
-app.use(express.urlencoded({extended: true})); 
-app.use(express.json());
-app.use(cors());
 require('dotenv').config();
 const mongoose = require('mongoose');
-const ObjectId = require('mongodb').ObjectId; 
+const session = require('express-session');
+const passport = require('passport');
+const passportLocalMongoose = require('passport-local-mongoose');
+app.use(express.urlencoded({extended: true})); 
+app.use(express.json());
+// app.use(cors());
+const corsOptions = {
+  optionsSuccessStatus: 200,
+  credentials: true,
+}
+app.use(cors(corsOptions));
+app.use(session({
+  secret: process.env.SESSION_SECRET,
+  resave: false,
+  saveUninitialized: false
+  //can add addage (time in milliseconds): 
+  //maxAge: 5000,
+  // expires works the same as the maxAge
+  //expires: new Date('01 12 2021'),
+}));
+app.use(passport.initialize());
+app.use(passport.session());
+
+
 mongoose.set('strictQuery', true);
+
+const userSchema = new mongoose.Schema({
+  username: {type: String},
+  password: {type: String},
+  type: {type: String, default: 'jobseeker'} //admin, recruiter, jobseeker
+});
+
+userSchema.plugin(passportLocalMongoose);
+
+const User = mongoose.model("User", userSchema);
+passport.use(User.createStrategy());
+passport.serializeUser(User.serializeUser());
+passport.deserializeUser(User.deserializeUser());
 
 const candidateSchema = new mongoose.Schema({
   name: {type: String},
@@ -56,6 +89,25 @@ async function connect() {
   const url = `mongodb+srv://${process.env.db_USERNAME}:${process.env.db_PASSWORD}@cluster0.lgbc6oy.mongodb.net/ats-db`;
   await mongoose.connect(url);
 }
+
+app.route("/auth/register")
+  .post(async function (req, res) {
+    // check if user exists
+    //if user doesn't exists : 
+    //register user
+    User.register({username: req.body.username}, req.body.password, function(err, user) {
+      if (err) {
+        console.log(err);
+      } else{
+        passport.authenticate("local")(req,res,function(){
+          //add any other cookie info you need (like user type)
+          res.cookie(`myCookie`,`This is the enc value`);
+          res.send('user registered successfully, cookie sent');
+        });
+      }
+    });
+    //otherwise
+  });
 
 app.route("/")
   .get(async function (req, res) {
