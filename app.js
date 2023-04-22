@@ -37,7 +37,14 @@ app.route("/")
     // console.log(req.session);
     //add data to session. this will only be available within this route
     sesh.newVar = "You have a session cookie, good for you";
-    res.send({message:'Hello World', mySesh: sesh.newVar});
+    // res.send({message:'Hello World', mySesh: sesh.newVar});
+    res.send({message:'Hello World'});
   });
 
-app.listen(process.env.PORT || 8080, () => console.log("Server is running on port 8080"));
+  module.exports = app;
+
+// const server = app.listen(process.env.PORT || 8081, () => {
+//   console.log(`Server is running on port ${server.address().port}`);
+// });
+
+// app.listen(process.env.PORT || 8081, () => console.log("Server is running on port 8080"));
