@@ -18,6 +18,10 @@ app.use(session({
   secret: process.env.SESSION_SECRET,
   resave: false,
   saveUninitialized: false
+
+  // session storage
+  //https://www.npmjs.com/package/memorystore
+
   //can add addage (time in milliseconds): 
   //maxAge: 5000,
   // expires works the same as the maxAge
@@ -90,33 +94,63 @@ async function connect() {
   await mongoose.connect(url);
 }
 
-app.route("/auth/register")
+app.route("/auth/login")
   .post(async function (req, res) {
-    // check if user exists
-    //if user doesn't exists : 
-    //register user
-    User.register({username: req.body.username}, req.body.password, function(err, user) {
-      if (err) {
+    const user = new User({
+      username: req.body.username,
+      password: req.body.password
+    });
+
+    req.logIn(user, function(err) {
+      if (err) { 
         console.log(err);
-      } else{
-        passport.authenticate("local")(req,res,function(){
+        res.send('login error');
+      } else {
+        passport.authenticate("local")(req,res,function(err){
           //add any other cookie info you need (like user type)
           res.cookie(`myCookie`,`This is the enc value`);
-          res.send('user registered successfully, cookie sent');
+          res.send('user logged in successfully, cookie sent');
         });
       }
     });
+  });
+
+app.route("/auth/register")
+  .post(async function (req, res) {
+    const isUser = await User.findOne({username: req.body.username});
+    console.log();
+    if(!isUser){
+      User.register({username: req.body.username}, req.body.password, function(err, user) {
+        if (err) {
+          console.log(err);
+        } else{
+          passport.authenticate("local")(req,res,function(){
+            //add any other cookie info you need (like user type)
+            res.cookie(`myCookie`,`This is the enc value`);
+            res.send('user registered successfully, cookie sent');
+          });
+        }
+      });
+    } else {
+      res.send('user already exists');
+    }
     //otherwise
   });
 
 app.route("/")
   .get(async function (req, res) {
     // console.log(req.body);
-    res.send({message:'Hello World'});
+    let sesh = req.session;
+    console.log(req.session.page_views);
+    //add data to session. this will only be available within this route
+    sesh.newVar = "You have a session cookie, good for you";
+    res.send({message:'Hello World', mySesh: sesh.newVar});
   });
 
 app.route("/candidates")
   .get(async function (req, res){
+    let sesh = req.session;
+    console.log(sesh);
     res.send(await Candidate.find());
   });
 
