@@ -1,10 +1,10 @@
 const express = require('express');
 const cors = require('cors');
-const passport = require('passport');
-const { User, Candidate, Recruiter, Application, Role, connect } = require('./db');
 const app = express();
 require('dotenv').config();
+const { User, Candidate, Recruiter, Application, Role, connect } = require('./db');
 const session = require('express-session');
+const passport = require('passport');
 //addding a comment for github branch checking on second pc.
 app.use(express.urlencoded({extended: true})); 
 app.use(express.json());
@@ -42,7 +42,87 @@ app.route("/")
     res.send({message:'Hello World'});
   });
 
-  module.exports = app;
+app.route("/roles")
+  .get(async function (req, res){
+    res.send(await Role.find());
+  })
+  .post(async function (req, res){
+    // console.log(req.body);
+    try{
+      const t = req.body.title;
+      const desc = req.body.description;
+      const newRole = new Role({
+        role: t,
+        roleDescription: desc
+      });
+      newRole.save();
+      res.send(newRole);
+    } catch (error){
+      console.log(error);
+    }
+  });
+
+app.route("/candidates")
+  .get(async function (req, res){
+    res.send(await Candidate.find());
+  });
+
+app.route("/applicants/:job_id")
+  .get(async function (req, res){
+    const role = await Role.findOne({_id: req.params.job_id});
+    const {jobApplicants} = role;
+    res.send(jobApplicants);
+  });
+
+app.route("/auth/login")
+  .post(async function (req, res) {
+    const user = new User({
+      username: req.body.username,
+      password: req.body.password
+    });
+
+    req.logIn(user, function(err) {
+      if (err) { 
+        console.log(err);
+        res.send('login error');
+      } else {
+        passport.authenticate("local")(req,res,function(err){
+          //add any other cookie info you need (like user type)
+          res.cookie(`myCookie`,`This is the enc value`);
+          res.send('user logged in successfully, cookie sent');
+        });
+      }
+    });
+  });
+
+app.route("/auth/register")
+  .post(async function (req, res) {
+    const isUser = await User.findOne({username: req.body.username});
+    console.log();
+    if(!isUser){
+      User.register({username: req.body.username}, req.body.password, function(err, user) {
+        if (err) {
+          console.log(err);
+        } else{
+          passport.authenticate("local")(req,res,function(){
+            //add any other cookie info you need (like user type)
+            res.cookie(`myCookie`,`This is the enc value`);
+            res.send('user registered successfully, cookie sent');
+          });
+        }
+      });
+    } else {
+      res.send('user already exists');
+    }
+    //otherwise
+  });
+
+app.route("/init")
+  .get(async function (req, res){
+    res.send("complete");
+  });
+
+module.exports = app;
 
 // const server = app.listen(process.env.PORT || 8081, () => {
 //   console.log(`Server is running on port ${server.address().port}`);
