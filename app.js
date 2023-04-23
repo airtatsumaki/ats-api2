@@ -5,6 +5,7 @@ const { User, Candidate, Recruiter, Application, Role, connect } = require('./db
 const app = express();
 require('dotenv').config();
 const session = require('express-session');
+//addding a comment for github branch checking on second pc.
 app.use(express.urlencoded({extended: true})); 
 app.use(express.json());
 const corsOptions = {
