@@ -9,8 +9,9 @@ app.route("/roles")
   .get(async function (req, res){
     res.send(await Role.find());
   })
-  .post(async function (req, res){
+  .post(function (req, res){
     try{
+      const {title, description} = req.body
       const t = req.body.title;
       const desc = req.body.description;
       const newRole = new Role({
@@ -27,6 +28,30 @@ app.route("/roles")
 app.route("/candidates")
   .get(async function (req, res){
     res.send(await Candidate.find());
+  })
+  .post(async function (req, res){
+    try{
+      const {name, email, blurb} = req.body;
+      // const cv = req.body.cvpath;
+      const can = await Candidate.findOne({email: email});
+      if(!can){
+        const newCandidate = new Candidate({
+          name: name,
+          email: email,
+          blurb: blurb,
+          // cvPath: cv
+        });
+        console.log(newCandidate);
+        //newCandidate.save();
+        //console.log("new candidate added");
+        //res.send(newCandidate);
+      } else {
+        console.log("already a candidate.");
+        res.send("Candidate already exists");
+      }
+    } catch (error){
+      console.log(error);
+    }
   });
 
 app.route("/applicants/:job_id")
@@ -37,10 +62,11 @@ app.route("/applicants/:job_id")
   });
 
 app.route("/auth/login")
-  .post(async function (req, res) {
+  .post(function (req, res) {
+    const {username, password} = req.body
     const user = new User({
-      username: req.body.username,
-      password: req.body.password
+      username: username,
+      password: password
     });
 
     req.logIn(user, function(err) {
@@ -59,10 +85,10 @@ app.route("/auth/login")
 
 app.route("/auth/register")
   .post(async function (req, res) {
-    const isUser = await User.findOne({username: req.body.username});
-    console.log();
+    const {username, password} = req.body
+    const isUser = await User.findOne({username: username});
     if(!isUser){
-      User.register({username: req.body.username}, req.body.password, function(err, user) {
+      User.register({username: username}, password, function(err, user) {
         if (err) {
           console.log(err);
         } else{
@@ -79,12 +105,12 @@ app.route("/auth/register")
   });
 
 app.route("/")
-  .get(async function (req, res) {
+  .get(function (req, res) {
     res.send({message:'Hello World'});
   });
 
 app.route("/init")
-  .get(async function (req, res){
+  .get(function (req, res){
     res.send("complete");
   });
 
