@@ -42,9 +42,9 @@ app.route("/candidates")
           // cvPath: cv
         });
         console.log(newCandidate);
-        //newCandidate.save();
-        //console.log("new candidate added");
-        //res.send(newCandidate);
+        newCandidate.save();
+        console.log("new candidate added");
+        res.send(newCandidate);
       } else {
         console.log("already a candidate.");
         res.send("Candidate already exists");
