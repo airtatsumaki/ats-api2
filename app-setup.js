@@ -3,6 +3,7 @@ const express = require('express');
 const cors = require('cors');
 const session = require('express-session');
 const passport = require('passport');
+//lets add multer
 require('dotenv').config();
 
 function setupApp(){
