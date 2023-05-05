@@ -4,6 +4,9 @@ const cors = require('cors');
 const session = require('express-session');
 const passport = require('passport');
 //lets add multer
+const multer = require('multer');
+const upload = multer({ storage: multer.memoryStorage() });
+const fs = require('fs');
 require('dotenv').config();
 
 function setupApp(){
@@ -34,4 +37,4 @@ function setupApp(){
   return app;
 }
 
-module.exports = setupApp;
+module.exports = { setupApp, upload, fs, passport };

@@ -1,7 +1,6 @@
-const setupApp = require('./app-setup');
+const { setupApp, upload, fs, passport }  = require('./app-setup');
 require('dotenv').config();
 const { User, Candidate, Recruiter, Application, Role, connect } = require('./db');
-const passport = require('passport');
 const app = setupApp();
 connect().catch(err => console.log(err));
 
@@ -51,6 +50,32 @@ app.route("/candidates")
       }
     } catch (error){
       console.log(error);
+    }
+  });
+
+app.route("/upload")
+  .post(upload.single('cvpath'), async function (req, res){
+    const { name, email, blurb } = req.body;
+    const filename = `${Date.now()}_${req.file.originalname}`;
+    const can = await Candidate.findOne({email: email});
+    if (!can) {
+      const newCandidate = new Candidate({
+        name: name,
+        email: email,
+        blurb: blurb,
+        cvPath: filename
+      });
+      fs.writeFile(`./uploads/${filename}`, req.file.buffer, (err) => {
+        if (err) {
+          console.error(err);
+          res.status(500).send('Failed to write file to disk');
+        } else {
+          res.send('File uploaded successfully, candidate created');
+          newCandidate.save();
+        }
+      });
+    } else {
+      res.send('Candidate already exists');
     }
   });
 
