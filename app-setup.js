@@ -8,9 +8,11 @@ const multer = require('multer');
 const upload = multer({ storage: multer.memoryStorage() });
 const fs = require('fs');
 require('dotenv').config();
+const path = require('path');
 
 function setupApp(){
   const app = express();
+  app.use(express.static('public'))
   app.use(express.urlencoded({extended: true})); 
   app.use(express.json());
   const corsOptions = {
@@ -37,4 +39,4 @@ function setupApp(){
   return app;
 }
 
-module.exports = { setupApp, upload, fs, passport };
+module.exports = { setupApp, upload, fs, passport, path };

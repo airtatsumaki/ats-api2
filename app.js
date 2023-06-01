@@ -1,4 +1,4 @@
-const { setupApp, upload, fs, passport }  = require('./app-setup');
+const { setupApp, upload, fs, passport, path }  = require('./app-setup');
 require('dotenv').config();
 const { User, Candidate, Recruiter, Application, Role, connect } = require('./db');
 const app = setupApp();
@@ -77,6 +77,11 @@ app.route("/upload")
     } else {
       res.send('Candidate already exists');
     }
+  });
+
+app.route("/viewFile/:filename")
+  .get(async function (req, res){
+    res.sendFile(path.join(__dirname, "uploads", req.params.filename));
   });
 
 app.route("/applicants/:job_id")
