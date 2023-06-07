@@ -84,6 +84,11 @@ app.route("/viewFile/:filename")
     res.sendFile(path.join(__dirname, "uploads", req.params.filename));
   });
 
+app.route("/downloadFile/:filename")
+  .get(async function (req, res){
+    res.download(path.join(__dirname, "uploads", req.params.filename));
+  });
+
 app.route("/applicants/:job_id")
   .get(async function (req, res){
     const role = await Role.findOne({_id: req.params.job_id});
