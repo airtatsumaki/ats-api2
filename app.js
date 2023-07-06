@@ -26,6 +26,7 @@ app.route("/roles")
 
 app.route("/candidates")
   .get(async function (req, res){
+    console.log(req.user);
     res.send(await Candidate.find());
   })
   .post(async function (req, res){
@@ -82,6 +83,7 @@ app.route("/upload")
 app.route("/viewFile/:filename")
   .get(async function (req, res){
     res.sendFile(path.join(__dirname, "uploads", req.params.filename));
+    // res.send(path.join(__dirname, "uploads", req.params.filename));
   });
 
 app.route("/downloadFile/:filename")
@@ -112,7 +114,9 @@ app.route("/auth/login")
         passport.authenticate("local")(req,res,function(err){
           //add any other cookie info you need (like user type)
           res.cookie(`myCookie`,`This is the enc value`);
-          res.send('user logged in successfully, cookie sent');
+          // send the authenticated user to client/ react/ frontend to store within useState etc. 
+          res.send(req.user);
+          console.log(req.user.username);
         });
       }
     });
@@ -130,12 +134,16 @@ app.route("/auth/register")
           passport.authenticate("local")(req,res,function(){
             //add any other cookie info you need (like user type)
             res.cookie(`myCookie`,`This is the enc value`);
-            res.send('user registered successfully, cookie sent');
+            // res.send('user registered successfully, cookie sent');
+            // send the authenticated user to client/ react/ frontend to store within useState etc. 
+            console.log('register new user');
+            res.send(req.user);
           });
         }
       });
     } else {
-      res.send('user already exists');
+      console.log('user already exists');
+      res.send(req.user);
     }
   });
 
