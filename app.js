@@ -26,7 +26,13 @@ app.route("/roles")
 
 app.route("/candidates")
   .get(async function (req, res){
-    console.log(req.user);
+    // THIS ALL WORKS
+    // if(req.user && req.user.type == "admin"){
+    //   res.send(await Candidate.find());
+    // }
+    // else{
+    //   res.send("you're not allowed to see this, you're not an admin user");
+    // }
     res.send(await Candidate.find());
   })
   .post(async function (req, res){
@@ -113,10 +119,12 @@ app.route("/auth/login")
       } else {
         passport.authenticate("local")(req,res,function(err){
           //add any other cookie info you need (like user type)
-          res.cookie(`myCookie`,`This is the enc value`);
+          // res.cookie(`myCookie`,`This is the enc value`);
           // send the authenticated user to client/ react/ frontend to store within useState etc. 
-          res.send(req.user);
-          console.log(req.user.username);
+          // res.send(req.user);
+          // console.log(req.user.username);
+          console.log("you logged in");
+          res.send("well done you logged in");
         });
       }
     });
